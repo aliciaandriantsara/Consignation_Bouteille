@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion — AquaCycle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b1120;
+      --panel:     #111827;
+      --border:    #1e2d45;
+      --accent:    #00c6ff;
+      --accent2:   #0072ff;
+      --text:      #e8f0fe;
+      --muted:     #6b7a99;
+      --error:     #ff4f6d;
+      --success:   #00e5a0;
+      --radius:    14px;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 60px;
+      overflow: hidden;
+    }
+
+    .left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 20%, rgba(0,198,255,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 70% 80%, rgba(0,114,255,.14) 0%, transparent 70%);
+      z-index: 0;
+    }
+
+    /* grille décorative */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,198,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,198,255,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 0;
+    }
+
+    /* bouteilles flottantes */
+    .bottles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bottle {
+      position: absolute;
+      width: 36px;
+      opacity: .18;
+      animation: floatUp linear infinite;
+    }
+
+    .bottle svg { width: 100%; fill: var(--accent); }
+
+    .bottle:nth-child(1)  { left:8%;  animation-duration:14s; animation-delay:0s;   top:100% }
+    .bottle:nth-child(2)  { left:22%; animation-duration:18s; animation-delay:3s;   top:100% }
+    .bottle:nth-child(3)  { left:38%; animation-duration:12s; animation-delay:1s;   top:100% }
+    .bottle:nth-child(4)  { left:55%; animation-duration:16s; animation-delay:5s;   top:100% }
+    .bottle:nth-child(5)  { left:70%; animation-duration:20s; animation-delay:2s;   top:100% }
+    .bottle:nth-child(6)  { left:85%; animation-duration:15s; animation-delay:7s;   top:100% }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0)   rotate(0deg);   opacity:.18 }
+      50%  { opacity:.28 }
+      100% { transform: translateY(-110vh) rotate(20deg); opacity:0 }
+    }
+
+    .left-content { position: relative; z-index: 2; }
+
+    .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .left-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .left-headline span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .left-sub {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 380px;
+    }
+
+    /* stats déco */
+    .stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .stat { display: flex; flex-direction: column; gap: 4px; }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+
+    /* ── RIGHT PANEL (formulaire) ── */
+    .right {
+      width: 480px;
+      min-height: 100vh;
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      position: relative;
+    }
+
+    .right::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0,198,255,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .form-box { width: 100%; max-width: 360px; }
+
+    .form-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    /* message erreur */
+    .error-msg {
+      display: none;
+      background: rgba(255,79,109,.1);
+      border: 1px solid rgba(255,79,109,.3);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--error);
+      margin-bottom: 24px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .error-msg.show { display: flex; animation: shake .3s ease; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0) }
+      25%      { transform: translateX(-6px) }
+      75%      { transform: translateX(6px) }
+    }
+
+    /* champs */
+    .field { margin-bottom: 20px; }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrap svg {
+      position: absolute;
+      left: 14px;
+      width: 16px; height: 16px;
+      color: var(--muted);
+      pointer-events: none;
+      transition: color .2s;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 14px 13px 42px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+
+    .input-wrap input::placeholder { color: var(--muted); }
+
+    .input-wrap input:focus {
+      border-color: var(--accent);
+      background: rgba(0,198,255,.04);
+      box-shadow: 0 0 0 3px rgba(0,198,255,.1);
+    }
+
+    .input-wrap input:focus + svg,
+    .input-wrap:focus-within svg { color: var(--accent); }
+
+    /* fix icone à droite (oeil) */
+    .eye-btn {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      padding: 0;
+      transition: color .2s;
+    }
+    .eye-btn:hover { color: var(--accent); }
+    .eye-btn svg { width: 16px; height: 16px; }
+
+    .input-wrap input[type="password"] { padding-right: 42px; }
+
+    /* forgot */
+    .forgot {
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 28px;
+    }
+
+    .forgot a {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .forgot a:hover { color: var(--accent); }
+
+    /* bouton */
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: opacity .2s, transform .15s;
+    }
+
+    .btn-login:hover  { opacity: .9; transform: translateY(-1px); }
+    .btn-login:active { transform: translateY(0); }
+
+    .btn-login .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.25);
+      transform: scale(0);
+      animation: ripple .5s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    .btn-login.loading { pointer-events: none; }
+
+    .btn-login .btn-text  { transition: opacity .2s; }
+    .btn-login .btn-spin  { display: none; }
+
+    .btn-login.loading .btn-text { opacity: 0; }
+    .btn-login.loading .btn-spin {
+      display: block;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* register link */
+    .register-link {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .register-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity .2s;
+    }
+
+    .register-link a:hover { opacity: .8; }
+
+    /* animation entrée */
+    .form-box > * {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp .5s ease forwards;
+    }
+
+    .form-box > *:nth-child(1) { animation-delay: .05s }
+    .form-box > *:nth-child(2) { animation-delay: .10s }
+    .form-box > *:nth-child(3) { animation-delay: .15s }
+    .form-box > *:nth-child(4) { animation-delay: .20s }
+    .form-box > *:nth-child(5) { animation-delay: .25s }
+    .form-box > *:nth-child(6) { animation-delay: .30s }
+    .form-box > *:nth-child(7) { animation-delay: .35s }
+    .form-box > *:nth-child(8) { animation-delay: .40s }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      body { flex-direction: column; overflow: auto; }
+      .left { min-height: 280px; padding: 40px 32px; }
+      .right { width: 100%; min-height: auto; border-left: none; border-top: 1px solid var(--border); }
+      .stats { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PANNEAU GAUCHE -->
+<div class="left">
+  <div class="grid-bg"></div>
+
+  <!-- Bouteilles flottantes (SVG inline) -->
+  <div class="bottles">
+    <div class="bottle"><svg viewBox="0 0 40 100" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="0" width="12" height="10" rx="2"/><path d="M10 10 Q6 20 6 30 L6 85 Q6 94 20 94 Q34 94 34 85 L34 30 Q34 20 30 10 Z"/></svg></div>
+    <div class="bottle"><svg viewBox="0 0 40 100" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="0" width="12" height="10" rx="2"/><path d="M10 10 Q6 20 6 30 L6 85 Q6 94 20 94 Q34 94 34 85 L34 30 Q34 20 30 10 Z"/></svg></div>
+    <div class="bottle"><svg viewBox="0 0 40 100" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="0" width="12" height="10" rx="2"/><path d="M10 10 Q6 20 6 30 L6 85 Q6 94 20 94 Q34 94 34 85 L34 30 Q34 20 30 10 Z"/></svg></div>
+    <div class="bottle"><svg viewBox="0 0 40 100" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="0" width="12" height="10" rx="2"/><path d="M10 10 Q6 20 6 30 L6 85 Q6 94 20 94 Q34 94 34 85 L34 30 Q34 20 30 10 Z"/></svg></div>
+    <div class="bottle"><svg viewBox="0 0 40 100" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="0" width="12" height="10" rx="2"/><path d="M10 10 Q6 20 6 30 L6 85 Q6 94 20 94 Q34 94 34 85 L34 30 Q34 20 30 10 Z"/></svg></div>
+    <div class="bottle"><svg viewBox="0 0 40 100" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="0" width="12" height="10" rx="2"/><path d="M10 10 Q6 20 6 30 L6 85 Q6 94 20 94 Q34 94 34 85 L34 30 Q34 20 30 10 Z"/></svg></div>
+  </div>
+
+  <div class="left-content">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      AquaCycle
+    </div>
+
+    <h1 class="left-headline">
+      Gérez vos<br/>bouteilles<br/><span>intelligemment.</span>
+    </h1>
+
+    <p class="left-sub">
+      Plateforme de gestion du cycle de vie des bouteilles réutilisables — de l'emprunt au lavage, en passant par la livraison.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-num">1.2k</span>
+        <span class="stat-label">Bouteilles actives</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">98%</span>
+        <span class="stat-label">Taux de retour</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">6</span>
+        <span class="stat-label">Rôles gérés</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANNEAU DROIT (formulaire) -->
+<div class="right">
+  <div class="form-box">
+
+    <h2 class="form-title">Bon retour 👋</h2>
+    <p class="form-subtitle">Connectez-vous à votre espace</p>
+
+    <!-- Message d'erreur -->
+    <div class="error-msg" id="errorMsg">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errorText">Email ou mot de passe incorrect.</span>
+    </div>
+
+    <!-- Formulaire — action vers login.php -->
+    <form id="loginForm" action="../auth/login.php" method="POST" novalidate>
+
+      <!-- Email -->
+      <div class="field">
+        <label for="email">Adresse email</label>
+        <div class="input-wrap">
+          <input type="email" id="email" name="email" placeholder="vous@exemple.com" autocomplete="email" required/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+        </div>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <button type="button" class="eye-btn" id="eyeBtn" aria-label="Afficher le mot de passe">
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mot de passe oublié -->
+      <div class="forgot">
+        <a href="#">Mot de passe oublié ?</a>
+      </div>
+
+      <!-- Bouton connexion -->
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span class="btn-text">Se connecter</span>
+        <span class="btn-spin"><span class="spinner"></span></span>
+      </button>
+
+    </form>
+
+    <div class="divider">ou</div>
+
+    <p class="register-link">
+      Pas encore de compte ? <a href="register.html">Créer un compte</a>
+    </p>
+
+  </div>
+</div>
+
+<script>
+  // ── Afficher / masquer le mot de passe
+  const eyeBtn  = document.getElementById('eyeBtn');
+  const pwdInput = document.getElementById('password');
+  const eyeIcon  = document.getElementById('eyeIcon');
+
+  eyeBtn.addEventListener('click', () => {
+    const isHidden = pwdInput.type === 'password';
+    pwdInput.type  = isHidden ? 'text' : 'password';
+    eyeIcon.innerHTML = isHidden
+      ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`
+      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  });
+
+  // ── Effet ripple sur le bouton
+  const loginBtn = document.getElementById('loginBtn');
+  loginBtn.addEventListener('click', function(e) {
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+
+  // ── Validation + loading
+  const form     = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('errorMsg');
+  const errorTxt = document.getElementById('errorText');
+
+  form.addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value.trim();
+    const pwd   = document.getElementById('password').value;
+
+    // Validation côté client
+    if (!email || !pwd) {
+      e.preventDefault();
+      showError('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      e.preventDefault();
+      showError('Adresse email invalide.');
+      return;
+    }
+
+    // Affiche le spinner pendant l'envoi
+    loginBtn.classList.add('loading');
+  });
+
+  function showError(msg) {
+    errorTxt.textContent = msg;
+    errorMsg.classList.remove('show');
+    void errorMsg.offsetWidth; // reset animation
+    errorMsg.classList.add('show');
+  }
+
+  // ── Affiche l'erreur PHP si ?error=1 dans l'URL
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('error') === '1') {
+    showError('Email ou mot de passe incorrect.');
+    loginBtn.classList.remove('loading');
+  }
+</script>
+
+</body>
+</html>
