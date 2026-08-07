@@ -1,12 +1,17 @@
 <?php
-session_start();
-
-define('ROOT', dirname(__DIR__));
+define('ROOT', __DIR__);
+require ROOT . '/vendor/autoload.php';
 define('APP',  ROOT . '/app');
 
 require APP . '/config/database.php';
+require APP . '/helpers/session.php';
 require APP . '/helpers/auth.php';
 require APP . '/helpers/response.php';
+
+// Enregistrer le gestionnaire de session MySQL AVANT session_start()
+$handler = new SessionDB();
+session_set_save_handler($handler, true);
+session_start();
 
 spl_autoload_register(function (string $class): void {
     foreach ([APP.'/controllers/', APP.'/models/'] as $dir) {
@@ -15,13 +20,11 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
-// ── Routing corrigé ──────────────────────────────────────
-// PATH_INFO contient ce qui est APRÈS index.php
-// ex: /index.php/auth/login → PATH_INFO = /auth/login
-$pathInfo = $_SERVER['PATH_INFO'] ?? '';
+// $pathInfo = $_SERVER['PATH_INFO'] ?? '';
+// $pathInfo = trim($pathInfo, '/');
+$pathInfo = $_GET['url'] ?? ($_SERVER['PATH_INFO'] ?? '');
 $pathInfo = trim($pathInfo, '/');
 
-// Si vide (accès direct à /index.php ou /), rediriger vers login
 if (empty($pathInfo)) {
     redirect('auth/login');
 }
@@ -32,7 +35,6 @@ $action = $parts[1] ?? 'index';
 $param  = $parts[2] ?? null;
 $ctrl   = ucfirst($base) . 'Controller';
 
-// Vérification session
 if ($base !== 'auth' && !isLoggedIn()) {
     redirect('auth/login');
 }
@@ -40,7 +42,6 @@ if (isLoggedIn() && (currentUser()['statut_compte'] ?? 'actif') !== 'actif') {
     logout();
 }
 
-// Charger le controller
 $file = APP . '/controllers/' . $ctrl . '.php';
 if (!file_exists($file)) {
     http_response_code(404);

@@ -1,9 +1,24 @@
 <?php
-define('DB_HOST', 'localhost');//la base mysql est sur mon ordinateur
-define('DB_NAME', 'consignation');
-define('DB_USER', 'php_user');
-define('DB_PASS', 'motdepasse123');
+// Détection auto : si le nom de la base contient "if0_", on est sur InfinityFree
+if (strpos($_SERVER['HTTP_HOST'] ?? '', 'infinityfreeapp.com') !== false) {
+    define('DB_HOST', 'sql308.infinityfree.com');
+    define('DB_NAME', 'if0_42566435_consignation');
+    define('DB_USER', 'if0_42566435');
+    define('DB_PASS', 'ton_mot_de_passe_infinityfree');
+} else {
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'consignation');
+    define('DB_USER', 'php_user');
+    define('DB_PASS', 'motdepasse123');
+}
 define('DB_CHAR', 'utf8mb4');
+
+// ... reste du fichier inchangé
+// define('DB_HOST', 'sql308.infinityfree.com');//la base mysql est sur mon ordinateur
+// define('DB_NAME', 'if0_42566435_consignation');
+// define('DB_USER', 'if0_42566435');
+// define('DB_PASS', 'Andmioali9');
+// define('DB_CHAR', 'utf8mb4');
 //permet de stocker accents emoji caractere speciaux de plusieurs langues
 //pour creer la connexion entre php et mysql avec pdo
 

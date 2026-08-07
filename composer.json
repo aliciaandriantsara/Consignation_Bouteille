@@ -1,0 +1,7 @@
+{
+    "name": "consignation/app",
+    "description": "Système de consignation",
+    "require": {
+        "endroid/qr-code": "^6.0"
+    }
+}
