@@ -1,0 +1,234 @@
+<?php $pageTitle = 'Dashboard Entreprise — ' . htmlspecialchars($e['nom_entreprise']); ?>
+<?php require APP . '/views/shared/header.php'; ?>
+
+<div class="dashboard entreprise-dash">
+    <div class="dash-header">
+        <div>
+            <h1 class="dash-title">Tableau de bord</h1>
+            <p class="dash-subtitle">🏭 <?= htmlspecialchars($e['nom_entreprise']) ?></p>
+        </div>
+    </div>
+
+    <!-- Cycle de vie -->
+    <section class="section">
+        <h2 class="section-title">Cycle de vie des bouteilles</h2>
+        <div class="cycle-dashboard">
+            <?php
+            $cycle = [
+                'DISPONIBLE_REVENDEUR' => ['Dispo. revendeur','🏪','green'],
+                'EMPRUNTEE'            => ['Empruntée','↗','blue'],
+                'RENDUE_REVENDEUR'     => ['Rendue','↩','teal'],
+                'EN_COLLECTE'          => ['En collecte','🚚','orange'],
+                'EN_STOCK_ENTREPRISE'  => ['En stock','📦','purple'],
+                'A_LAVER'              => ['À laver','〜','red'],
+                'PROPRE'               => ['Propre','✓','green'],
+                'DISPONIBLE_STOCK'     => ['Dispo. stock','⬜','teal'],
+                'LIVREE_REVENDEUR'     => ['Livrée','✈','blue'],
+            ];
+            foreach ($cycle as $key => [$label, $icon, $color]):
+                $val = $statsStatut[$key] ?? 0;
+            ?>
+            <div class="cycle-card cycle--<?= $color ?>">
+                <div class="cycle-icon"><?= $icon ?></div>
+                <div class="cycle-value"><?= $val ?></div>
+                <div class="cycle-label"><?= $label ?></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+
+    <!-- Stats par revendeur -->
+    <?php if (!empty($statsRev)): ?>
+    <section class="section">
+        <h2 class="section-title">Répartition par revendeur</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>Revendeur</th><th>Statut</th><th>Bouteilles</th></tr></thead>
+                <tbody>
+                <?php foreach ($statsRev as $s): ?>
+                <tr>
+                    <td><?= htmlspecialchars($s['nom_boutique_actuel']) ?></td>
+                    <td><span class="badge badge--<?= strtolower($s['statut']) ?>"><?= $s['statut'] ?></span></td>
+                    <td><?= $s['total'] ?></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <!-- Commandes -->
+    <section class="section">
+        <h2 class="section-title">📋 Commandes des revendeurs</h2>
+        <?php if (empty($commandes)): ?>
+            <p class="empty-state">Aucune commande.</p>
+        <?php else: ?>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Revendeur</th><th>Adresse</th><th>Qté</th><th>Date</th><th>Statut</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                <?php foreach ($commandes as $cmd): ?>
+                <tr>
+                    <td><?= htmlspecialchars($cmd['nom_boutique_actuel']) ?></td>
+                    <td><?= htmlspecialchars($cmd['adresse'] ?? '—') ?></td>
+                    <td><?= $cmd['quantite'] ?></td>
+                    <td><?= substr($cmd['date_commande'],0,16) ?></td>
+                    <td><span class="badge badge--<?= strtolower($cmd['statut']) ?>"><?= $cmd['statut'] ?></span></td>
+                    <td>
+                        <?php if ($cmd['statut'] === 'EN_ATTENTE'): ?>
+                        <button class="btn-sm btn-primary"
+                            onclick="openModalLivraison(
+                                '<?= htmlspecialchars($cmd['nom_boutique_actuel'],ENT_QUOTES) ?>',
+                                '<?= htmlspecialchars($cmd['nom_entreprise'],ENT_QUOTES) ?>',
+                                '<?= htmlspecialchars($cmd['date_commande'],ENT_QUOTES) ?>'
+                            )">Valider</button>
+                        <?php else: ?><span class="text-muted">—</span><?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+    </section>
+
+    <!-- Collectes -->
+    <section class="section">
+        <h2 class="section-title">🚚 Collectes (revendeur → stock)</h2>
+        <button class="btn-primary" style="margin-bottom:1rem" onclick="openModalCollecte()">+ Créer une collecte</button>
+        <?php if (empty($collectes)): ?>
+            <p class="empty-state">Aucune collecte planifiée.</p>
+        <?php else: ?>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>Revendeur</th><th>Livreur</th><th>Date prévue</th><th>Bouteilles</th><th>Statut</th></tr></thead>
+                <tbody>
+                <?php foreach ($collectes as $c): ?>
+                <tr>
+                    <td><?= htmlspecialchars($c['nom_boutique_actuel']) ?></td>
+                    <td><?= htmlspecialchars($c['livreur_prenom'].' '.$c['livreur_nom']) ?></td>
+                    <td><?= htmlspecialchars($c['date_collecte_prevue']) ?></td>
+                    <td><?= $c['nb_bouteilles'] ?></td>
+                    <td><span class="badge badge--<?= strtolower($c['statut']) ?>"><?= $c['statut'] ?></span></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+    </section>
+
+    <!-- Transactions -->
+    <section class="section">
+        <h2 class="section-title">Suivi des emprunts clients</h2>
+        <?php if (empty($transactions)): ?>
+            <p class="empty-state">Aucune transaction.</p>
+        <?php else: ?>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Bouteille QR</th><th>Client</th><th>Revendeur</th><th>Emprunté le</th><th>Rendu le</th><th>Statut</th></tr>
+                </thead>
+                <tbody>
+                <?php foreach ($transactions as $t): ?>
+                <tr class="<?= $t['statut']==='EN_COURS'?'row-active':'' ?>">
+                    <td><code><?= htmlspecialchars($t['qr_code_bouteille']) ?></code></td>
+                    <td><?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?></td>
+                    <td><?= htmlspecialchars($t['nom_boutique']) ?></td>
+                    <td><?= substr($t['date_emprunt'],0,16) ?></td>
+                    <td><?= $t['date_retour'] ? substr($t['date_retour'],0,16) : '—' ?></td>
+                    <td><span class="badge badge--<?= strtolower($t['statut']) ?>"><?= $t['statut'] ?></span></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+    </section>
+</div>
+
+<!-- Modal : valider livraison (clés naturelles) -->
+<div id="modal-livraison" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-livraison')"></div>
+    <div class="modal-box">
+        <h3>Valider la commande</h3>
+        <form method="POST" action="/index.php/entreprise/validerCommande">
+            <input type="hidden" name="nom_boutique"  id="m-nom-boutique">
+            <input type="hidden" name="nom_entreprise" id="m-nom-entreprise">
+            <input type="hidden" name="date_commande" id="m-date-commande">
+            <div class="field-group">
+                <label>Livreur assigné (CIN)</label>
+                <select name="CIN_livreur" id="sel-livreur" required>
+                    <option value="">Chargement…</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Date prévue</label>
+                <input type="date" name="date_prevue" value="<?= date('Y-m-d') ?>" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-livraison')">Annuler</button>
+                <button type="submit" class="btn-primary">Confirmer →</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal : créer collecte -->
+<div id="modal-collecte" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-collecte')"></div>
+    <div class="modal-box">
+        <h3>Créer une collecte</h3>
+        <form method="POST" action="/index.php/entreprise/creerCollecte">
+            <div class="field-group">
+                <label>Revendeur</label>
+                <select name="nom_boutique" id="sel-revendeur" required>
+                    <option value="">Chargement…</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Livreur (CIN)</label>
+                <select name="CIN_livreur" id="sel-livreur-c" required>
+                    <option value="">Chargement…</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Date prévue</label>
+                <input type="date" name="date_prevue" value="<?= date('Y-m-d') ?>" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-collecte')">Annuler</button>
+                <button type="submit" class="btn-primary">Créer →</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+async function openModalLivraison(nomBoutique, nomEntreprise, dateCommande) {
+    document.getElementById('m-nom-boutique').value   = nomBoutique;
+    document.getElementById('m-nom-entreprise').value = nomEntreprise;
+    document.getElementById('m-date-commande').value  = dateCommande;
+    document.getElementById('modal-livraison').classList.remove('hidden');
+    const livreurs = await fetch('/index.php/entreprise/livreurs').then(r=>r.json());
+    document.getElementById('sel-livreur').innerHTML =
+        livreurs.map(l=>`<option value="${l.CIN}">${l.prenom} ${l.nom} (${l.CIN})</option>`).join('');
+}
+async function openModalCollecte() {
+    document.getElementById('modal-collecte').classList.remove('hidden');
+    const [livreurs, revendeurs] = await Promise.all([
+        fetch('/index.php/entreprise/livreurs').then(r=>r.json()),
+        fetch('/index.php/entreprise/revendeurs').then(r=>r.json()),
+    ]);
+    document.getElementById('sel-livreur-c').innerHTML =
+        livreurs.map(l=>`<option value="${l.CIN}">${l.prenom} ${l.nom} (${l.CIN})</option>`).join('');
+    document.getElementById('sel-revendeur').innerHTML =
+        revendeurs.map(r=>`<option value="${r.nom_boutique}">${r.nom_boutique}</option>`).join('');
+}
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+
+<?php require APP . '/views/shared/footer.php'; ?>
