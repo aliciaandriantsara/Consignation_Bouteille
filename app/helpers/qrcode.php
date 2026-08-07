@@ -22,7 +22,9 @@ function genererImageQr(string $contenu, string $nomFichier): string {
 
     $result = $writer->write($qrCode);
 
-    $chemin = ROOT . '/public/qrcodes/' . $nomFichier . '.png';
+    // $chemin = ROOT . '/public/qrcodes/' . $nomFichier . '.png';
+    $sousDossier = (strpos($_SERVER['HTTP_HOST'] ?? '', 'infinityfreeapp.com') !== false) ? '' : '/public';//raha local
+    $chemin = ROOT . $sousDossier . '/qrcodes/' . $nomFichier . '.png';
     $result->saveToFile($chemin);
 
     return '/qrcodes/' . $nomFichier . '.png';
