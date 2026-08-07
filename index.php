@@ -1,27 +1,28 @@
-<!DOCTYPE html>
-<html lang="fr">
-	<head>
-		<meta charset="UTF-8">
-		<title>Connexion</title>
-	</head>
-	<body>
-		<h2>Connexion</h2>
-		<!--Affiche les erreurs passes en URL-->
-		<?php
-			if(isset($_GET['error'])): 
-		?>
-		<p style="color:red;">Email ou mot de passe incorrect</p>
-		<?php endif; ?>
+<?php
+//echo "HTACCESS OK"; test
 
-		<form action="login.php" method="POST">
-			<label>Email : </label>
-			<input type="email" name="email" required><br><br>
+//Point d'entree unique ou front controller
+session_start();
 
-			<label>Password : </label>
-			<input type="password" name="password" required><br><br>
+define('ROOT', dirname(_DIR));
+define('APP', ROOT . '/app');
 
-			<button type="submit">Se connecter</button>
-		</form>
-	</body>
+require APP . '/config/database.php';
+require APP . '/helpers/auth.php';
+require APP . '/helpers/response.php';
 
-</html>
+//Autoload simple des controllers et models
+spl_autoload_register(function (string $class): void {
+    $paths = [
+        APP . '/controllers/' . $class . '.php',
+        APP . '/models/'      . $class . '.php',
+    ];
+
+    foreach ($paths as $file) {
+        if (file_exists($file)) { require $file; return; }
+    }
+});
+
+//Routing
+$uri = trim(parse_url
+?>
