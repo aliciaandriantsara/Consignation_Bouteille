@@ -176,3 +176,30 @@ php -S localhost:8080
 - **Export PDF/CSV** des transactions et statistiques
 - **API REST** pour application mobile
 - **Historique des lavages** consultable par l'entreprise
+
+
+# Cycle de vie d'une bouteille
+
+```
+DISPONIBLE_STOCK
+    ↓  livraison revendeur
+LIVREE_REVENDEUR
+    ↓
+DISPONIBLE_REVENDEUR  ←─────────────────────┐
+    ↓  scan emprunt                          │
+EMPRUNTEE                                   │
+    ↓  scan retour                           │
+RENDUE_REVENDEUR                            │
+    ↓  collecte assignée                     │
+EN_COLLECTE                                 │
+    ↓  livreur marque collecte effectuée     │
+EN_STOCK_ENTREPRISE                         │
+    ↓  logisticien démarre lavage            │
+A_LAVER                                     │
+    ↓  logisticien termine lavage            │
+PROPRE                                      │
+    ↓  logisticien met en stock              │
+DISPONIBLE_STOCK ───────────────────────────┘
+```
+
+---
