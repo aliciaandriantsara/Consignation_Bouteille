@@ -29,14 +29,20 @@ class TransactionModel {
 
     //selectionne toutes les transactions d'un revendeur
     public function byRevendeur(string $nomBoutique): array {
-        $s = $this->db->prepare('SELECT t.*, c.nom, c.prenom, c.CIN, b.nom_entreprise FROM transaction_consignation t JOIN client c ON c.CIN = t.CIN_clien JOIN bouteille b ON b.qr_code  = t.qr_code_bouteille WHERE t.nom_boutique = ? ORDER BY t.date_emprunt DESC');
+        $s = $this->db->prepare('SELECT t.*, c.nom, c.prenom, c.CIN, b.nom_entreprise FROM transaction_consignation t JOIN client c ON c.CIN = t.CIN_client JOIN bouteille b ON b.qr_code  = t.qr_code_bouteille WHERE t.nom_boutique = ? ORDER BY t.date_emprunt DESC');
         $s->execute([$nomBoutique]);
         return $s->fetchAll();
     }
 
     //selectionne toutes les transactions d'un client
+    // public function byClient(string $cinClient): array {
+    //     $s = $this->db->prepare('SELECT t.*, b.nom_entreprise FROM transaction_consignation t JOIN bouteille b ON b.qr_code = t.qr_code_bouteille WHERE t.CIN_client = ? ORDER BY t.date_emprunt DESC');
+    //     $s->execute([$cinClient]);
+    //     return $s->fetchAll();
+    // }
+    //selectionne toutes les transactions d'un client
     public function byClient(string $cinClient): array {
-        $s = $this->db->prepare('SELECT t.*, b.nom_entreprise FROM transaction_consignation t JOIN bouteille b ON b.qr_code = t.qr_code_bouteille WHERE t.CIN_client = ? ORDER BY t.date_emprunt DESC');
+        $s = $this->db->prepare('SELECT t.*, t.qr_code_bouteille AS bouteille_qr, b.nom_entreprise FROM transaction_consignation t JOIN bouteille b ON b.qr_code = t.qr_code_bouteille WHERE t.CIN_client = ? ORDER BY t.date_emprunt DESC');
         $s->execute([$cinClient]);
         return $s->fetchAll();
     }

@@ -1,4 +1,7 @@
 <?php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 define('ROOT', __DIR__);
 require ROOT . '/vendor/autoload.php';
 define('APP',  ROOT . '/app');
