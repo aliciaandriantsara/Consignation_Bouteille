@@ -356,7 +356,7 @@ function rechercheClient(q) {
         return;
     }
     searchTO = setTimeout(async () => {
-        const data = await fetch('/index.php?url=revendeur/rechercheClient?q=' + encodeURIComponent(q))
+        const data = await fetch('/index.php?url=revendeur/rechercheClient&q=' + encodeURIComponent(q))
             .then(r => r.json());
         const box  = document.getElementById('client-results');
         if (!data.length) { box.classList.add('hidden'); return; }
