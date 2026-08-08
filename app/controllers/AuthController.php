@@ -144,6 +144,54 @@ class AuthController
         }
         view('auth/register');
     }
+
+    public function forgotPassword(?string $p = null): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email       = trim($_POST['email'] ?? '');
+            $cin         = trim($_POST['cin'] ?? '');
+            $nom         = trim($_POST['nom'] ?? '');
+            $prenom      = trim($_POST['prenom'] ?? '');
+            $pass        = $_POST['password'] ?? '';
+            $passConfirm = $_POST['password_confirm'] ?? '';
+
+            require_once APP . '/models/UtilisateurModel.php';
+            require_once APP . '/models/ClientModel.php';
+            $utilisateurM = new UtilisateurModel();
+            $clientM      = new ClientModel();
+
+            $erreurs = [];
+            if (strlen($pass) < 8) $erreurs[] = 'Le mot de passe doit contenir au moins 8 caractères.';
+            if ($pass !== $passConfirm) $erreurs[] = 'Les mots de passe ne correspondent pas.';
+
+            if (empty($erreurs)) {
+                $user   = $utilisateurM->findByEmail($email);
+                $client = $clientM->findByCIN($cin);
+
+                // Tous les champs doivent correspondre à LA MÊME fiche client
+                // strcasecmp : comparaison insensible à la casse pour nom/prénom (évite de bloquer sur une majuscule mal tapée)
+                $valide = $user && $user['role'] === 'client'
+                    && $client
+                    && $client['email_utilisateur'] === $email
+                    && strcasecmp($client['nom'], $nom) === 0
+                    && strcasecmp($client['prenom'], $prenom) === 0;
+
+                if (!$valide) $erreurs[] = 'Les informations fournies ne correspondent à aucun compte.';
+            }
+
+            if (!empty($erreurs)) {
+                flashSet('error', implode(' ', $erreurs));
+                view('auth/forgot-password');
+                return;
+            }
+
+            $utilisateurM->updateMotDePasse($email, $pass);
+            flashSet('success', 'Mot de passe réinitialisé avec succès. Vous pouvez vous connecter.');
+            redirect('auth/login');
+            return;
+        }
+        view('auth/forgot-password');
+    }
 }
 
 

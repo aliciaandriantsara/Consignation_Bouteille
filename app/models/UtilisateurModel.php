@@ -40,4 +40,10 @@ class UtilisateurModel
         $s = $this->db->prepare("INSERT INTO utilisateur (email, mot_de_passe, role, statut_compte) VALUES (?, ?, ?, 'actif')");
         $s->execute([$email, $hash, $role]);
     }
+
+    public function updateMotDePasse(string $email, string $motDePasseClair): void {
+        $hash = password_hash($motDePasseClair, PASSWORD_DEFAULT);
+        $s = $this->db->prepare('UPDATE utilisateur SET mot_de_passe = ? WHERE email = ?');
+        $s->execute([$hash, $email]);
+    }
 }

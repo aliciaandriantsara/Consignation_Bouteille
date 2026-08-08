@@ -64,6 +64,10 @@
 
                 <p class="auth-switch">Pas encore de compte ? <a href="/index.php?url=auth/register">Créer un compte</a></p>
 
+                <p class="auth-switch" style="text-align:right;margin:0.5rem 0 1.5rem">
+                    <a href="/index.php?url=auth/forgotPassword">Mot de passe oublié ?</a>
+                </p>
+
                 <div class="login-hint">
                     <p>Comptes de démonstration <code>mot de passe : password</code></p>
                     <div class="demo-accounts">
