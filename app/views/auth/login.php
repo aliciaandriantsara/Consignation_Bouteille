@@ -47,10 +47,10 @@
                     <div class="flash flash-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['msg']) ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="/index.php?url=auth/login" class="auth-form">
+                <form method="POST" action="/index.php?url=auth/login" class="auth-form" autocomplete="off">
                     <div class="field-group">
                         <label for="email">Adresse e-mail</label>
-                        <input type="email" id="email" name="email" required
+                        <input type="email" id="email" name="email" required autocomplete="off"
                             placeholder="vous@exemple.com"
                             value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                     </div>

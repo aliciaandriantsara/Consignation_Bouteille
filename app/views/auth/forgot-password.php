@@ -34,26 +34,26 @@
                     <div class="flash flash-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['msg']) ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="/index.php?url=auth/forgotPassword" class="auth-form">
+                <form method="POST" action="/index.php?url=auth/forgotPassword" class="auth-form" autocomplete="off">
                     <div class="field-group">
                         <label for="email">Adresse e-mail</label>
-                        <input type="email" id="email" name="email" required
+                        <input type="email" id="email" name="email" required autocomplete="off"
                             placeholder="vous@exemple.com"
                             value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                     </div>
                     <div class="field-group">
                         <label for="cin">CIN</label>
-                        <input type="text" id="cin" name="cin" required
+                        <input type="text" id="cin" name="cin" required autocomplete="off"
                             value="<?= htmlspecialchars($_POST['cin'] ?? '') ?>">
                     </div>
                     <div class="field-group">
                         <label for="nom">Nom</label>
-                        <input type="text" id="nom" name="nom" required
+                        <input type="text" id="nom" name="nom" required autocomplete="off"
                             value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>">
                     </div>
                     <div class="field-group">
                         <label for="prenom">Prénom</label>
-                        <input type="text" id="prenom" name="prenom" required
+                        <input type="text" id="prenom" name="prenom" required autocomplete="off"
                             value="<?= htmlspecialchars($_POST['prenom'] ?? '') ?>">
                     </div>
                     <div class="field-group">
