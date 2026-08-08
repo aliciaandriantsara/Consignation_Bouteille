@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — Consignation</title>
+    <title>Créer un compte — Consignation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css">
@@ -20,7 +20,7 @@
             <div class="login-art-text">
                 <span class="art-logo">◈</span>
                 <h1 class="art-headline">Consignation</h1>
-                <p class="art-sub">Gestion intelligente du cycle de vie des bouteilles réutilisables</p>
+                <p class="art-sub">Rejoignez le cycle de vie intelligent des bouteilles réutilisables</p>
                 <div class="art-cycle">
                     <span class="cycle-item">Disponible</span>
                     <span class="cycle-arrow">→</span>
@@ -39,15 +39,35 @@
 
         <div class="login-form-panel">
             <div class="login-form-inner">
-                <h2 class="form-title">Connexion</h2>
-                <p class="form-sub">Accédez à votre espace de travail</p>
+                <h2 class="form-title">Créer un compte</h2>
+                <p class="form-sub">Inscription client — suivez vos emprunts de bouteilles</p>
 
                 <?php $flash = flashGet();
                 if ($flash): ?>
                     <div class="flash flash-<?= $flash['type'] ?>"><?= htmlspecialchars($flash['msg']) ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="/index.php?url=auth/login" class="auth-form">
+                <form method="POST" action="/index.php?url=auth/register" class="auth-form">
+                    <div class="field-group">
+                        <label for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" required
+                            value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>">
+                    </div>
+                    <div class="field-group">
+                        <label for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" required
+                            value="<?= htmlspecialchars($_POST['prenom'] ?? '') ?>">
+                    </div>
+                    <div class="field-group">
+                        <label for="cin">CIN</label>
+                        <input type="text" id="cin" name="cin" required
+                            value="<?= htmlspecialchars($_POST['cin'] ?? '') ?>">
+                    </div>
+                    <div class="field-group">
+                        <label for="telephone">Téléphone (optionnel)</label>
+                        <input type="text" id="telephone" name="telephone"
+                            value="<?= htmlspecialchars($_POST['telephone'] ?? '') ?>">
+                    </div>
                     <div class="field-group">
                         <label for="email">Adresse e-mail</label>
                         <input type="email" id="email" name="email" required
@@ -56,24 +76,18 @@
                     </div>
                     <div class="field-group">
                         <label for="password">Mot de passe</label>
-                        <input type="password" id="password" name="password" required
+                        <input type="password" id="password" name="password" required minlength="8"
+                            placeholder="8 caractères minimum">
+                    </div>
+                    <div class="field-group">
+                        <label for="password_confirm">Confirmer le mot de passe</label>
+                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8"
                             placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-primary btn-full">Se connecter →</button>
+                    <button type="submit" class="btn-primary btn-full">Créer mon compte →</button>
                 </form>
 
-                <p class="auth-switch">Pas encore de compte ? <a href="/index.php?url=auth/register">Créer un compte</a></p>
-
-                <div class="login-hint">
-                    <p>Comptes de démonstration <code>mot de passe : password</code></p>
-                    <div class="demo-accounts">
-                        <button class="demo-btn" data-email="entreprise@test.com">🏭 Entreprise</button>
-                        <button class="demo-btn" data-email="revendeur@test.com">🏪 Revendeur</button>
-                        <button class="demo-btn" data-email="client@test.com">👤 Client</button>
-                        <button class="demo-btn" data-email="livreur@test.com">🚚 Livreur</button>
-                        <button class="demo-btn" data-email="logisticien@test.com">📦 Logisticien</button>
-                    </div>
-                </div>
+                <p class="auth-switch">Déjà un compte ? <a href="/index.php?url=auth/login">Se connecter</a></p>
             </div>
         </div>
     </div>

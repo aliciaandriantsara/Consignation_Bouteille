@@ -1211,3 +1211,18 @@ select option {
   font-weight: 800;
   color: var(--border);
 }
+
+.auth-switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+.auth-switch a {
+    color: #8b7cf6;
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-switch a:hover {
+    text-decoration: underline;
+}

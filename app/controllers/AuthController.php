@@ -1,15 +1,17 @@
 <?php
 // app/controllers/AuthController.php
 
-class AuthController {
+class AuthController
+{
 
-    public function login(?string $p = null): void {
+    public function login(?string $p = null): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['email']    ?? '');
             //trim supprime les espaces au début et à la fin de la chaîne
-            $pass  = $_POST['password'] ?? ''; 
+            $pass  = $_POST['password'] ?? '';
 
-            require_once APP.'/models/UtilisateurModel.php';
+            require_once APP . '/models/UtilisateurModel.php';
             //charge le fichier UtilisateurModel.php pour pouvoir utiliser la classe UtilisateurModel
 
             $user = (new UtilisateurModel())->findActifByEmail($email);
@@ -34,56 +36,113 @@ class AuthController {
         //charge la vue de connexion pour que l'utilisateur puisse saisir ses identifiants lorsque l'utilisateur arrive sur la page avec la mehode get ou que les identifiants sont incorrects avec un message d'erreur temporaire
     }
 
-//     Utilisateur ouvre /login
-//         │
-//         ▼
-// Méthode GET ?
-//         │
-//         ├── Oui
-//         │      ▼
-//         │  Afficher le formulaire
-//         │
-//         ▼
-// Utilisateur remplit le formulaire
-//         │
-//         ▼
-// Méthode POST
-//         │
-//         ▼
-// Récupération email + mot de passe
-//         │
-//         ▼
-// Recherche de l'utilisateur actif par email
-//         │
-//         ▼
-// Utilisateur trouvé ?
-//         │
-//    ┌────┴────┐
-//    │         │
-//  Non        Oui
-//    │         │
-//    ▼         ▼
-// Erreur   Vérification du mot de passe
-//              │
-//         ┌────┴────┐
-//         │         │
-//       Faux      Vrai
-//         │         │
-//         ▼         ▼
-//    Message    Régénération de la session
-//    d'erreur        │
-//                    ▼
-//           Stockage des informations
-//           dans `$_SESSION`
-//                    │
-//                    ▼
-//       Redirection vers `role/dashboard`
+    //     Utilisateur ouvre /login
+    //         │
+    //         ▼
+    // Méthode GET ?
+    //         │
+    //         ├── Oui
+    //         │      ▼
+    //         │  Afficher le formulaire
+    //         │
+    //         ▼
+    // Utilisateur remplit le formulaire
+    //         │
+    //         ▼
+    // Méthode POST
+    //         │
+    //         ▼
+    // Récupération email + mot de passe
+    //         │
+    //         ▼
+    // Recherche de l'utilisateur actif par email
+    //         │
+    //         ▼
+    // Utilisateur trouvé ?
+    //         │
+    //    ┌────┴────┐
+    //    │         │
+    //  Non        Oui
+    //    │         │
+    //    ▼         ▼
+    // Erreur   Vérification du mot de passe
+    //              │
+    //         ┌────┴────┐
+    //         │         │
+    //       Faux      Vrai
+    //         │         │
+    //         ▼         ▼
+    //    Message    Régénération de la session
+    //    d'erreur        │
+    //                    ▼
+    //           Stockage des informations
+    //           dans `$_SESSION`
+    //                    │
+    //                    ▼
+    //       Redirection vers `role/dashboard`
 
 
 
-    public function logout(?string $p = null): void {
+    public function logout(?string $p = null): void
+    {
         logout();
         //fonction php golbale qui detruit toutes les données associées à la session en cours
+    }
+
+    public function register(?string $p = null): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email       = trim($_POST['email'] ?? '');
+            $pass        = $_POST['password'] ?? '';
+            $passConfirm = $_POST['password_confirm'] ?? '';
+            $cin         = trim($_POST['cin'] ?? '');
+            $nom         = trim($_POST['nom'] ?? '');
+            $prenom      = trim($_POST['prenom'] ?? '');
+            $telephone   = trim($_POST['telephone'] ?? '') ?: null;
+
+            require_once APP . '/models/UtilisateurModel.php';
+            require_once APP . '/models/ClientModel.php';
+            $utilisateurM = new UtilisateurModel();
+            $clientM      = new ClientModel();
+
+            // Validation
+            $erreurs = [];
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) $erreurs[] = 'Email invalide.';
+            if (strlen($pass) < 8) $erreurs[] = 'Le mot de passe doit contenir au moins 8 caractères.';
+            if ($pass !== $passConfirm) $erreurs[] = 'Les mots de passe ne correspondent pas.';
+            if ($cin === '') $erreurs[] = 'Le CIN est obligatoire.';
+            if ($nom === '' || $prenom === '') $erreurs[] = 'Nom et prénom sont obligatoires.';
+
+            if (empty($erreurs)) {
+                if ($utilisateurM->findByEmail($email)) $erreurs[] = 'Cet email est déjà utilisé.';
+                if ($clientM->findByCIN($cin))          $erreurs[] = 'Ce CIN est déjà enregistré.';
+            }
+
+            if (!empty($erreurs)) {
+                flashSet('error', implode(' ', $erreurs));
+                view('auth/register');
+                return;
+            }
+
+            // Rôle FIXÉ ici en dur, jamais lu depuis $_POST — personne ne peut s'auto-déclarer autre chose que "client"
+            $db = getDB();
+            try {
+                $db->beginTransaction();
+                $utilisateurM->creer($email, $pass, 'client');
+                $clientM->creer($cin, $email, $nom, $prenom, $telephone);
+                $db->commit();
+            } catch (Exception $e) {
+                $db->rollBack();
+                flashSet('error', 'Erreur lors de la création du compte. Réessayez.');
+                view('auth/register');
+                return;
+            }
+
+            flashSet('success', 'Compte créé avec succès ! Vous pouvez vous connecter.');
+            redirect('auth/login');
+            return;
+        }
+        view('auth/register');
     }
 }
 
