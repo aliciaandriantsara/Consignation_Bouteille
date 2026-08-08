@@ -13,6 +13,17 @@ class LogisticienModel {
         $s->execute([$email]);
         return $s->fetch() ?: null;
     }
+
+    public function findByCIN(string $CIN): ?array {
+        $s = $this->db->prepare('SELECT * FROM logisticien WHERE CIN = ?');
+        $s->execute([$CIN]);
+        return $s->fetch() ?: null;
+    }
+
+    public function creer(string $CIN, string $email, string $nomEntreprise, string $nom, string $prenom): void {
+        $s = $this->db->prepare('INSERT INTO logisticien (CIN, email_utilisateur, nom_entreprise, nom, prenom) VALUES (?, ?, ?, ?, ?)');
+        $s->execute([$CIN, $email, $nomEntreprise, $nom, $prenom]);
+    }
 }
 
 ?>
