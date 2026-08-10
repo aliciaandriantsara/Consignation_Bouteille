@@ -62,11 +62,21 @@
                     <button type="submit" class="btn-primary btn-full">Se connecter →</button>
                 </form>
 
-                <p class="auth-switch">Pas encore de compte ? <a href="/index.php?url=auth/register">Créer un compte</a></p>
+                <!-- <p class="auth-switch">Pas encore de compte ? <a href="/index.php?url=auth/register">Créer un compte</a></p>
 
                 <p class="auth-switch" style="text-align:right;margin:0.5rem 0 1.5rem">
                     <a href="/index.php?url=auth/forgotPassword">Mot de passe oublié ?</a>
-                </p>
+                </p> -->
+                <!-- <div class="auth-links-row">
+                    <a href="/index.php?url=auth/register">Créer un compte</a>
+                    <a href="/index.php?url=auth/forgotPassword">Mot de passe oublié ?</a>
+                </div> -->
+
+                <div class="auth-links-row">
+                    <a href="/index.php?url=auth/register">Créer un compte</a>
+                    <span class="auth-links-sep">•</span>
+                    <a href="/index.php?url=auth/forgotPassword">Mot de passe oublié ?</a>
+                </div>
 
                 <div class="login-hint">
                     <p>Comptes de démonstration <code>mot de passe : password</code></p>
